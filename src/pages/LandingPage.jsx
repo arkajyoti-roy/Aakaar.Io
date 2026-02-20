@@ -49,7 +49,6 @@ function useSmoothScroll(lerpFactor = 0.072) {
     };
     window.addEventListener("keydown", onKeyDown);
 
-    // Touch support
     let touchStartY = 0;
     const onTouchStart = (e) => { touchStartY = e.touches[0].clientY; };
     const onTouchMove = (e) => {
@@ -74,7 +73,6 @@ function useSmoothScroll(lerpFactor = 0.072) {
   return { wrapRef, currentY, targetY };
 }
 
-// ── SCROLL PROGRESS ─────────────────────────────────────────────────────────
 function useScrollProgress(currentY) {
   const [progress, setProgress] = useState(0);
   useEffect(() => {
@@ -90,7 +88,6 @@ function useScrollProgress(currentY) {
   return progress;
 }
 
-// ── VIEWPORT SIZE HOOK ───────────────────────────────────────────────────────
 function useViewport() {
   const [vp, setVp] = useState({ w: typeof window !== 'undefined' ? window.innerWidth : 1200, h: typeof window !== 'undefined' ? window.innerHeight : 800 });
   useEffect(() => {
@@ -101,7 +98,6 @@ function useViewport() {
   return vp;
 }
 
-// ── MAGNETIC CURSOR ──────────────────────────────────────────────────────────
 function MagneticCursor() {
   const cursorRef = useRef(null);
   const dotRef    = useRef(null);
@@ -167,7 +163,6 @@ function MagneticCursor() {
   );
 }
 
-// ── INTERSECTION OBSERVER HOOK ───────────────────────────────────────────────
 function useInView(threshold = 0.1) {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
@@ -179,7 +174,6 @@ function useInView(threshold = 0.1) {
   return [ref, inView];
 }
 
-// ── REVEAL COMPONENT ─────────────────────────────────────────────────────────
 function Reveal({ children, delay = 0, from = "bottom", style = {} }) {
   const [ref, inView] = useInView(0.08);
   const transforms = {
@@ -201,7 +195,6 @@ function Reveal({ children, delay = 0, from = "bottom", style = {} }) {
   );
 }
 
-// ── CHAR-BY-CHAR REVEAL ──────────────────────────────────────────────────────
 function SplitReveal({ text, className, style = {}, delay = 0, tag = "h2" }) {
   const [ref, inView] = useInView(0.15);
   const Tag = tag;
@@ -224,7 +217,6 @@ function SplitReveal({ text, className, style = {}, delay = 0, tag = "h2" }) {
   );
 }
 
-// ── ANIMATED COUNTER ─────────────────────────────────────────────────────────
 function Counter({ target, suffix = "", duration = 2200 }) {
   const [val, setVal]   = useState(0);
   const [ref, inView]   = useInView(0.5);
@@ -250,7 +242,6 @@ function Counter({ target, suffix = "", duration = 2200 }) {
   return <span ref={ref}>{val}{suffix}</span>;
 }
 
-// ── 3D TILT CARD ─────────────────────────────────────────────────────────────
 function TiltCard({ children, style = {}, className = "" }) {
   const ref = useRef(null);
   const onMove = useCallback((e) => {
@@ -275,7 +266,6 @@ function TiltCard({ children, style = {}, className = "" }) {
   );
 }
 
-// ── PARALLAX LAYER ───────────────────────────────────────────────────────────
 function useParallax(speed = 0.15, currentY) {
   const ref    = useRef(null);
   const offset = useRef(0);
@@ -296,7 +286,6 @@ function useParallax(speed = 0.15, currentY) {
   return ref;
 }
 
-// ── STAGGER REVEAL GRID ──────────────────────────────────────────────────────
 function StaggerGrid({ children, cols = 3, gap = 14 }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap }}>
@@ -305,14 +294,12 @@ function StaggerGrid({ children, cols = 3, gap = 14 }) {
   );
 }
 
-// ── GLITCH TEXT ──────────────────────────────────────────────────────────────
 function GlitchText({ text, style = {} }) {
   return (
     <span className="glitch-text" data-text={text} style={style}>{text}</span>
   );
 }
 
-// ── MARQUEE ──────────────────────────────────────────────────────────────────
 function Marquee({ items, reverse = false }) {
   return (
     <div style={{ overflow: "hidden", whiteSpace: "nowrap", padding: "18px 0", borderTop: "1px solid rgba(255,140,0,0.12)", borderBottom: "1px solid rgba(255,140,0,0.12)", background: "rgba(255,140,0,0.03)" }}>
@@ -327,7 +314,6 @@ function Marquee({ items, reverse = false }) {
   );
 }
 
-// ── ANIMATED GRID BG ─────────────────────────────────────────────────────────
 function GridBg({ opacity = 0.04 }) {
   return (
     <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
@@ -336,7 +322,6 @@ function GridBg({ opacity = 0.04 }) {
   );
 }
 
-// ── RIPPLE BUTTON ────────────────────────────────────────────────────────────
 function RippleBtn({ children, className, style = {}, onClick }) {
   const [ripples, setRipples] = useState([]);
   const handleClick = (e) => {
@@ -358,6 +343,184 @@ function RippleBtn({ children, className, style = {}, onClick }) {
   );
 }
 
+// ── EARLY ACCESS MODAL ────────────────────────────────────────────────────────
+function EarlyAccessModal({ isOpen, onClose }) {
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const overlayRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setEmail("");
+      setSubmitted(false);
+      setLoading(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
+    if (isOpen) window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isOpen, onClose]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!email) return;
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setSubmitted(true);
+    }, 1400);
+  };
+
+  const handleOverlayClick = (e) => {
+    if (e.target === overlayRef.current) onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      ref={overlayRef}
+      onClick={handleOverlayClick}
+      style={{
+        position: "fixed", inset: 0, zIndex: 999999,
+        background: "rgba(0,0,0,0.78)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "20px",
+        animation: "modalOverlayIn 0.3s cubic-bezier(0.16,1,0.3,1)",
+      }}
+    >
+      <div style={{
+        position: "relative",
+        width: "100%", maxWidth: 480,
+        background: "linear-gradient(145deg, #0f0f0f 0%, #1a1a1a 100%)",
+        border: "1px solid rgba(255,140,0,0.3)",
+        borderRadius: 28,
+        padding: "44px 40px",
+        boxShadow: "0 40px 120px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,140,0,0.08), inset 0 1px 0 rgba(255,255,255,0.05)",
+        animation: "modalBoxIn 0.45s cubic-bezier(0.16,1,0.3,1)",
+        fontFamily: "'Roboto Mono', monospace",
+      }}>
+        {/* Glow orb inside modal */}
+        <div style={{ position: "absolute", top: -60, right: -40, width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,140,0,0.12) 0%, transparent 68%)", pointerEvents: "none" }} />
+
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: "absolute", top: 18, right: 18,
+            width: 34, height: 34, borderRadius: "50%",
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            color: "rgba(255,255,255,0.5)", fontSize: 16,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "none", transition: "all 0.3s",
+            fontFamily: "'Roboto Mono', monospace",
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,140,0,0.15)"; e.currentTarget.style.borderColor = "rgba(255,140,0,0.4)"; e.currentTarget.style.color = "#FF8C00"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}
+        >✕</button>
+
+        {!submitted ? (
+          <>
+            {/* Header */}
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,140,0,0.1)", border: "1px solid rgba(255,140,0,0.25)", borderRadius: 999, padding: "5px 14px", fontSize: 10, color: "#FF8C00", marginBottom: 28, letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 300 }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF8C00", display: "inline-block", animation: "pulseGlow 2s ease infinite" }} />
+              Early Access
+            </div>
+
+            <h2 style={{ fontSize: 28, fontWeight: 300, color: "#fff", marginBottom: 10, letterSpacing: "-0.5px", lineHeight: 1.15 }}>
+              Get <span style={{ background: "linear-gradient(130deg,#FF8C00,#FF5500)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", fontWeight: 500 }}>early access</span>
+            </h2>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12.5, marginBottom: 34, lineHeight: 1.8, fontWeight: 300 }}>
+              Join thousands building the future with Aakaar.io. Be first in line — no spam, ever.
+            </p>
+
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ position: "relative" }}>
+                <input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                  style={{
+                    width: "100%", padding: "14px 18px",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,140,0,0.2)",
+                    borderRadius: 14, fontSize: 13,
+                    color: "#fff", outline: "none",
+                    fontFamily: "'Roboto Mono', monospace",
+                    fontWeight: 300, letterSpacing: "0.02em",
+                    boxSizing: "border-box",
+                    transition: "border-color 0.3s, box-shadow 0.3s",
+                  }}
+                  onFocus={e => { e.target.style.borderColor = "rgba(255,140,0,0.6)"; e.target.style.boxShadow = "0 0 0 3px rgba(255,140,0,0.1)"; }}
+                  onBlur={e => { e.target.style.borderColor = "rgba(255,140,0,0.2)"; e.target.style.boxShadow = "none"; }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: "100%", padding: "14px",
+                  background: loading ? "rgba(255,140,0,0.4)" : "linear-gradient(90deg,#FF8C00,#FF5500)",
+                  border: "none", borderRadius: 14,
+                  color: "#fff", fontSize: 13, fontWeight: 500,
+                  letterSpacing: "0.05em",
+                  fontFamily: "'Roboto Mono', monospace",
+                  cursor: loading ? "not-allowed" : "none",
+                  transition: "transform 0.3s, box-shadow 0.3s, background 0.3s",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                }}
+                onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 12px 36px rgba(255,140,0,0.4)"; }}}
+                onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
+              >
+                {loading ? (
+                  <>
+                    <span style={{ width: 14, height: 14, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "rotate360 0.7s linear infinite" }} />
+                    Joining...
+                  </>
+                ) : "Request Early Access →"}
+              </button>
+            </form>
+
+            <p style={{ color: "rgba(255,255,255,0.22)", fontSize: 11, textAlign: "center", marginTop: 18, fontWeight: 300, letterSpacing: "0.02em" }}>
+              🔒 No spam. Unsubscribe anytime.
+            </p>
+          </>
+        ) : (
+          /* Success state */
+          <div style={{ textAlign: "center", padding: "20px 0" }}>
+            <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg,rgba(255,140,0,0.2),rgba(255,85,0,0.15))", border: "1px solid rgba(255,140,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 28px", fontSize: 28, animation: "scaleIn 0.5s cubic-bezier(0.34,1.56,0.64,1)" }}>
+              ✓
+            </div>
+            <h2 style={{ fontSize: 24, fontWeight: 300, color: "#fff", marginBottom: 12, letterSpacing: "-0.3px" }}>
+              You're on the <span style={{ background: "linear-gradient(130deg,#FF8C00,#FF5500)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", fontWeight: 500 }}>list!</span>
+            </h2>
+            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, lineHeight: 1.8, fontWeight: 300, marginBottom: 32 }}>
+              We'll reach out to <span style={{ color: "#FF8C00" }}>{email}</span> when your spot is ready. Get ready to build.
+            </p>
+            <button
+              onClick={onClose}
+              style={{ padding: "11px 32px", borderRadius: 50, background: "rgba(255,140,0,0.1)", border: "1px solid rgba(255,140,0,0.3)", color: "#FF8C00", fontSize: 12, fontFamily: "'Roboto Mono', monospace", cursor: "none", transition: "all 0.3s" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,140,0,0.2)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,140,0,0.1)"; }}
+            >
+              Close
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
@@ -369,6 +532,10 @@ export default function Landingg() {
   const [hoveredCap, setHoveredCap]   = useState(null);
   const [navScrolled, setNavScrolled] = useState(false);
   const [menuOpen, setMenuOpen]       = useState(false);
+  const [modalOpen, setModalOpen]     = useState(false);
+
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
 
   const { wrapRef, currentY, targetY } = useSmoothScroll(0.072);
   const scrollProgress = useScrollProgress(currentY);
@@ -377,7 +544,6 @@ export default function Landingg() {
   const isMobile  = w < 640;
   const isTablet  = w < 1024;
 
-  // Parallax refs
   const heroImgRef   = useParallax(0.18, currentY);
   const orb1Ref      = useParallax(0.08, currentY);
   const orb2Ref      = useParallax(-0.06, currentY);
@@ -401,7 +567,6 @@ export default function Landingg() {
     return () => cancelAnimationFrame(raf);
   }, [currentY]);
 
-  // Typewriter
   useEffect(() => {
     let i = 0;
     setTyped("");
@@ -473,7 +638,7 @@ export default function Landingg() {
               <div style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
             </div>
           ))}
-          <button style={{ marginTop: 16, width: "100%", background: "linear-gradient(135deg,#FF8C00,#FF5500)", borderRadius: 12, padding: "11px 0", fontSize: 12, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}>
+          <button onClick={openModal} style={{ marginTop: 16, width: "100%", background: "linear-gradient(135deg,#FF8C00,#FF5500)", borderRadius: 12, padding: "11px 0", fontSize: 12, color: "#fff", border: "none", cursor: "none", fontFamily: "inherit" }}>
             Deploy Now →
           </button>
         </div>
@@ -502,7 +667,6 @@ export default function Landingg() {
 
   const mono = { fontFamily: "'Roboto Mono', monospace" };
 
-  // Responsive grid cols
   const capCols = isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3,1fr)";
   const statCols = isMobile ? "1fr 1fr" : "repeat(4,1fr)";
   const brandCols = isMobile ? "1fr" : "1fr 1fr";
@@ -549,6 +713,8 @@ export default function Landingg() {
         @keyframes cardReveal   { from{opacity:0;transform:perspective(600px) rotateY(20deg) translateX(40px)} to{opacity:1;transform:perspective(600px) rotateY(0deg) translateX(0)} }
         @keyframes dash         { from{stroke-dashoffset:176} to{stroke-dashoffset:0} }
         @keyframes shimmerBg    { 0%{background-position:200% center} 100%{background-position:-200% center} }
+        @keyframes modalOverlayIn { from{opacity:0} to{opacity:1} }
+        @keyframes modalBoxIn   { from{opacity:0;transform:scale(0.88) translateY(30px)} to{opacity:1;transform:scale(1) translateY(0)} }
 
         .glitch-text { position: relative; }
         .glitch-text::before, .glitch-text::after {
@@ -692,6 +858,9 @@ export default function Landingg() {
       {/* ── MAGNETIC CURSOR ── */}
       <MagneticCursor />
 
+      {/* ── EARLY ACCESS MODAL ── */}
+      <EarlyAccessModal isOpen={modalOpen} onClose={closeModal} />
+
       {/* ── SCROLL PROGRESS BAR ── */}
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 2.5, zIndex: 9999, background: "rgba(255,140,0,0.12)" }}>
         <div style={{ height: "100%", width: `${scrollProgress}%`, background: "linear-gradient(90deg,#FF5500,#FF8C00,#FFB347)", backgroundSize: "200% 100%", animation: "progressBar 2s linear infinite", transition: "width 0.1s linear", boxShadow: "0 0 12px rgba(255,140,0,0.7)" }} />
@@ -707,21 +876,18 @@ export default function Landingg() {
             <span style={{ fontWeight: 500, fontSize: 15, color: "black", letterSpacing: "0.01em" }}>Aakaar.io</span>
           </div>
 
-          {/* Desktop nav links */}
           {!isMobile && (
             <div style={{ display: "flex", alignItems: "center", gap: 30 }}>
               {["Features","Docs"].map(item => <a key={item} href="#" className="nav-link">{item}</a>)}
             </div>
           )}
 
-          {/* Desktop buttons */}
           {!isMobile ? (
             <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <button className="outline-btn" style={{ fontSize: 12, padding: "7px 18px", borderRadius: 50 }}>Sign In</button>
-              <RippleBtn className="cta-btn" style={{ fontSize: 12, padding: "8px 20px", borderRadius: 50 }}>Get Early Access</RippleBtn>
+              <button className="outline-btn" style={{ fontSize: 12, padding: "7px 18px", borderRadius: 50 }} onClick={openModal}>Sign In</button>
+              <RippleBtn className="cta-btn" style={{ fontSize: 12, padding: "8px 20px", borderRadius: 50 }} onClick={openModal}>Get Early Access</RippleBtn>
             </div>
           ) : (
-            /* Hamburger */
             <button onClick={() => setMenuOpen(o => !o)} style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,140,0,0.1)", border: "1px solid rgba(255,140,0,0.25)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, padding: 8, transition: "all 0.3s", cursor: "pointer" }}>
               {[0,1,2].map(i => (
                 <span key={i} style={{ display: "block", width: "100%", height: 1.5, background: "#FF8C00", borderRadius: 2, transition: "all 0.3s", transform: menuOpen ? (i === 0 ? "translateY(6.5px) rotate(45deg)" : i === 2 ? "translateY(-6.5px) rotate(-45deg)" : "scaleX(0)") : "none", opacity: menuOpen && i === 1 ? 0 : 1 }} />
@@ -730,15 +896,14 @@ export default function Landingg() {
           )}
         </nav>
 
-        {/* Mobile menu */}
         {isMobile && menuOpen && (
           <div style={{ position: "absolute", top: "calc(100% + 10px)", left: 16, right: 16, background: "rgba(255,255,255,0.98)", backdropFilter: "blur(20px)", borderRadius: 20, border: "1px solid rgba(255,140,0,0.2)", padding: "16px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)", animation: "mobileMenuIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both" }}>
             {["Features","Docs"].map((item, i) => (
               <div key={item} className="mobile-menu-item" style={{ padding: "14px 12px", borderBottom: "1px solid rgba(255,140,0,0.08)", color: "#000", fontSize: 14, fontWeight: 300, letterSpacing: "0.04em" }}>{item}</div>
             ))}
             <div className="mobile-menu-item" style={{ display: "flex", gap: 8, marginTop: 14 }}>
-              <button className="outline-btn" style={{ flex: 1, fontSize: 12, padding: "10px 0", borderRadius: 50, color: "#333", border: "1px solid rgba(0,0,0,0.15)" }}>Sign In</button>
-              <RippleBtn className="cta-btn" style={{ flex: 1, fontSize: 12, padding: "10px 0", borderRadius: 50 }}>Get Access</RippleBtn>
+              <button className="outline-btn" style={{ flex: 1, fontSize: 12, padding: "10px 0", borderRadius: 50, color: "#333", border: "1px solid rgba(0,0,0,0.15)" }} onClick={openModal}>Sign In</button>
+              <RippleBtn className="cta-btn" style={{ flex: 1, fontSize: 12, padding: "10px 0", borderRadius: 50 }} onClick={openModal}>Get Access</RippleBtn>
             </div>
           </div>
         )}
@@ -757,11 +922,9 @@ export default function Landingg() {
             <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 65% 44% at 50% 62%, rgba(255,140,0,0.18) 0%, transparent 68%)" }} />
             <GridBg opacity={0.03} />
 
-            {/* Floating orbs */}
             <div ref={orb1Ref} className="orb-float" style={{ position: "absolute", top: "18%", left: isMobile ? "2%" : "8%", width: isMobile ? 160 : 280, height: isMobile ? 160 : 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,140,0,0.12) 0%, transparent 68%)", pointerEvents: "none", filter: "blur(2px)" }} />
             <div ref={orb2Ref} className="orb-float" style={{ position: "absolute", bottom: "22%", right: isMobile ? "2%" : "6%", width: isMobile ? 120 : 220, height: isMobile ? 120 : 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,80,0,0.1) 0%, transparent 65%)", pointerEvents: "none", animationDelay: "-3s" }} />
 
-            {/* Spinning rings */}
             {!isMobile && (
               <>
                 <div className="spin-slow" style={{ position: "absolute", top: "12%", right: "12%", width: 160, height: 160, border: "1px solid rgba(255,140,0,0.1)", borderRadius: "50%", pointerEvents: "none" }}>
@@ -813,12 +976,13 @@ export default function Landingg() {
                       {(isMobile ? ["✦ Plan"] : ["⌘ Clone","✦ Plan"]).map(label => (
                         <button key={label} style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", padding: "6px 14px", borderRadius: 50, letterSpacing: "0.02em", fontWeight: 300, transition: "all 0.3s", fontFamily: "inherit" }}
                           onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,140,0,0.4)"; e.currentTarget.style.color = "#FF8C00"; }}
-                          onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}>
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}
+                          onClick={openModal}>
                           {label}
                         </button>
                       ))}
                     </div>
-                    <RippleBtn className="cta-btn" style={{ width: 38, height: 38, borderRadius: 50, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>→</RippleBtn>
+                    <RippleBtn className="cta-btn" style={{ width: 38, height: 38, borderRadius: 50, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }} onClick={openModal}>→</RippleBtn>
                   </div>
                 </div>
               </Reveal>
@@ -837,7 +1001,6 @@ export default function Landingg() {
               </Reveal>
             </div>
 
-            {/* Scroll indicator */}
             <div style={{ position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, color: "rgba(255,255,255,0.18)", fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", animation: "floatUp 2.8s ease-in-out infinite" }}>
               <div style={{ width: 1, height: 46, background: "linear-gradient(to bottom, transparent, rgba(255,140,0,0.6))", animation: "lineGrow 1.5s cubic-bezier(0.22,1,0.36,1) 1s both", transformOrigin: "top" }} />
               scroll
@@ -867,7 +1030,6 @@ export default function Landingg() {
                 <SplitReveal text="Build and launch in minutes" style={{ fontSize: isMobile ? "clamp(26px,8vw,40px)" : "clamp(32px,5vw,58px)", fontWeight: 300, color: "#fff", letterSpacing: "-0.5px", justifyContent: "center" }} delay={0.1} />
               </Reveal>
 
-              {/* Tabs */}
               <Reveal delay={0.1} style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: isMobile ? 40 : 80, overflowX: "auto", padding: "4px 0" }}>
                 <div style={{ position: "relative", display: "flex", gap: isMobile ? 4 : 8, padding: "6px", background: "rgba(255,140,0,0.04)", border: "1px solid rgba(255,140,0,0.12)", borderRadius: 56, flexShrink: 0 }}>
                   {features.map((f, i) => (
@@ -888,7 +1050,7 @@ export default function Landingg() {
                     {features[activeFeature].title} anything
                   </h3>
                   <p style={{ color: "rgba(255,255,255,0.48)", fontSize: 14, lineHeight: 1.9, marginBottom: 36, fontWeight: 300 }}>{features[activeFeature].desc}</p>
-                  <RippleBtn className="cta-btn" style={{ padding: "13px 32px", borderRadius: 50, fontSize: 12 }}>Get Started →</RippleBtn>
+                  <RippleBtn className="cta-btn" style={{ padding: "13px 32px", borderRadius: 50, fontSize: 12 }} onClick={openModal}>Get Started →</RippleBtn>
                 </Reveal>
                 <Reveal delay={0.22} from={isMobile ? "bottom" : "right"}>
                   <div className="float-anim">{features[activeFeature].preview}</div>
@@ -927,7 +1089,6 @@ export default function Landingg() {
                     </TiltCard>
                   </Reveal>
                 ))}
-                {/* <br /> */}
                 <br />
                 <br />
                 <br />
@@ -950,11 +1111,10 @@ export default function Landingg() {
                   <SplitReveal text="Scale without changing platforms" style={{ fontSize: isMobile ? "clamp(22px,6vw,36px)" : "clamp(28px,4.5vw,52px)", fontWeight: 300, color: "#000", letterSpacing: "-0.5px", lineHeight: 1.1 }} delay={0.1} />
                 </Reveal>
                 <Reveal delay={0.2} from="right">
-                  <RippleBtn className="cta-btn" style={{ padding: "14px 32px", borderRadius: 50, fontSize: 12 }}>Get Started →</RippleBtn>
+                  <RippleBtn className="cta-btn" style={{ padding: "14px 32px", borderRadius: 50, fontSize: 12 }} onClick={openModal}>Get Started →</RippleBtn>
                 </Reveal>
               </div>
 
-              {/* Stats */}
               <Reveal delay={0.1} style={{ display: "grid", gridTemplateColumns: statCols, gap: 14, marginBottom: 48 }}>
                 {stats.map((s, i) => (
                   <div key={i} className="stat-card" style={{ textAlign: "center", background: "#fff", borderRadius: 18, padding: isMobile ? "20px 12px" : "28px 16px", border: "1px solid rgba(255,140,0,0.1)", boxShadow: "0 4px 28px rgba(0,0,0,0.06)", transition: "transform 0.5s cubic-bezier(.22,1,.36,1), box-shadow 0.5s", animationDelay: `${i * 0.5}s` }}
@@ -1040,7 +1200,7 @@ export default function Landingg() {
                           onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.zIndex = ""; e.currentTarget.style.boxShadow = ""; }} />
                       ))}
                     </div>
-                    <button style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#FFF5E0", border: "1px solid rgba(255,140,0,0.25)", borderRadius: 50, padding: "11px 0", fontSize: 12, color: "#FF5500", fontWeight: 400, letterSpacing: "0.05em", transition: "all 0.4s cubic-bezier(.22,1,.36,1)", fontFamily: "inherit" }}
+                    <button onClick={openModal} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#FFF5E0", border: "1px solid rgba(255,140,0,0.25)", borderRadius: 50, padding: "11px 0", fontSize: 12, color: "#FF5500", fontWeight: 400, letterSpacing: "0.05em", transition: "all 0.4s cubic-bezier(.22,1,.36,1)", fontFamily: "inherit" }}
                       onMouseEnter={e => { e.currentTarget.style.background = "#FF8C00"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 12px 36px rgba(255,140,0,0.35)"; }}
                       onMouseLeave={e => { e.currentTarget.style.background = "#FFF5E0"; e.currentTarget.style.color = "#FF5500"; e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}>
                       ✦ Generate Brand Palette
@@ -1073,16 +1233,15 @@ export default function Landingg() {
                     </p>
                   </TiltCard>
                 </Reveal>
-                
               </div>
               <br />
-                <br />
-                <br />
+              <br />
+              <br />
             </div>
           </section>
-          
-                <br />
-                <br />
+
+          <br />
+          <br />
 
           {/* ════════════════════════════════
               SECTION 6 — CTA (dark + image)
@@ -1117,10 +1276,10 @@ export default function Landingg() {
 
               <Reveal delay={0.4}>
                 <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
-                  <RippleBtn className="cta-btn" style={{ padding: isMobile ? "13px 28px" : "15px 40px", borderRadius: 50, fontSize: 12, boxShadow: "0 8px 36px rgba(255,140,0,0.4)" }}>
+                  <RippleBtn className="cta-btn" style={{ padding: isMobile ? "13px 28px" : "15px 40px", borderRadius: 50, fontSize: 12, boxShadow: "0 8px 36px rgba(255,140,0,0.4)" }} onClick={openModal}>
                     Get Early Access →
                   </RippleBtn>
-                  <button className="outline-btn" style={{ padding: isMobile ? "13px 28px" : "15px 40px", borderRadius: 50, fontSize: 12 }}>
+                  <button className="outline-btn" style={{ padding: isMobile ? "13px 28px" : "15px 40px", borderRadius: 50, fontSize: 12 }} onClick={openModal}>
                     View Templates
                   </button>
                 </div>
@@ -1137,7 +1296,6 @@ export default function Landingg() {
         </div>
       </div>
 
-      {/* SVG defs for circle dash animation */}
       <style>{`
         @keyframes dash {
           from { stroke-dashoffset: 176; }
