@@ -927,6 +927,10 @@ export default function Landingg() {
                     </TiltCard>
                   </Reveal>
                 ))}
+                {/* <br /> */}
+                <br />
+                <br />
+                <br />
               </div>
             </div>
           </section>
@@ -935,7 +939,7 @@ export default function Landingg() {
               SECTION 4 — SCALE (white)
           ════════════════════════════════ */}
           <section style={{ background: "linear-gradient(180deg, #f5f5f5 0%, #ffffff 35%, #fafafa 100%)", padding: isMobile ? "100px 16px" : "160px 20px", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 48% 52% at 76% 48%, rgba(255,140,0,0.06) 0%, transparent 58%)", pointerEvents: "none" }} />
+           <br /> <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 48% 52% at 76% 48%, rgba(255,140,0,0.06) 0%, transparent 58%)", pointerEvents: "none" }} />
             <div className="fade-top"    style={{ background: "linear-gradient(to bottom, #f5f5f5, transparent)" }} />
             <div className="fade-bottom" style={{ background: "linear-gradient(to top, #ffffff, transparent)" }} />
 
@@ -1069,9 +1073,16 @@ export default function Landingg() {
                     </p>
                   </TiltCard>
                 </Reveal>
+                
               </div>
+              <br />
+                <br />
+                <br />
             </div>
           </section>
+          
+                <br />
+                <br />
 
           {/* ════════════════════════════════
               SECTION 6 — CTA (dark + image)
