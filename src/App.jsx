@@ -1,12 +1,13 @@
 
 import './App.css'
-import Landingg from './pages/LandingPage'
-
+// import Landingg from './LandingPage'
+import Index from './LandingPage/index.jsx'
 function App() {
 
   return (
  <>
- <Landingg />
+ {/* <Landingg /> */}
+ <Index />
  </>
   )
 }
